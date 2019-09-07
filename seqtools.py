@@ -47,6 +47,20 @@ def sort(args):
     for k,v in fasta:
         outputfile.write(k+v)
     outputfile.close()
+    
+    
+## define the function to remove the last character of each line  
+def remove(args):
+    outputfile=open(args.output,"w")
+    with open(args.input,'r') as inputfile:
+        for line in inputfile:
+            line=line.strip()
+            if not line.endswith(args.character):
+                outputfile.write(line+'\n')
+            else:
+                line=line[:-1]
+                outputfile.write(line+'\n')
+    outputfile.close()
 
 def main():
     pass
@@ -60,27 +74,40 @@ parser=argparse.ArgumentParser(description="Some useful functions for dealing wi
 sub_parser=parser.add_subparsers()
 
 ##添加子命令extract
-extract_parser=sub_parser.add_parser("extract", help="Extract sequence based sequence id \nUsage: python seqtools extract -i input.fasta -l seq_id.txt -o output.fasta")
+extract_parser=sub_parser.add_parser("extract", help="Extract sequence based sequence id \nUsage: python seqtools.py extract -i input.fasta -l seq_id.txt -o output.fasta")
 ###为命令extract添加参数
 extract_parser.add_argument("--input","-i", type=str, help="Input file (.fasta or others)")
 extract_parser.add_argument("--seq_id_list","-l", type=str, help="The sequence id you want to extract (.txt)")
 extract_parser.add_argument("--output","-o", help="Output file (.fasta or others)")
+
+
 ##添加子命令sort
-sort_parser=sub_parser.add_parser("sort", help="Sort the sequence by sequence id or length \nUsage: python -i input -by 'id (or len)' -o output.fasta")
+sort_parser=sub_parser.add_parser("sort", help="Sort the sequence by sequence id or length \nUsage: python seqtools.py sort -i test.fasta -by 'id (or len)' -o output.fasta")
 ###为子命令sort添加参数
 sort_parser.add_argument("--input","-i", type=str, help="Input file (.fasta or others)")
 sort_parser.add_argument("--sort_by","-by", type=str, help="Sort sequence by sequence id (id) or sequence length (len)")
 sort_parser.add_argument("--output","-o", help="Output file (.fasta or others)")
 ##是否需要反向排序，默认是不需要（按从小到大的顺序进行排序），如果需要的话，就需要指定参数-r（按从大到小的顺序进行排序）
 sort_parser.add_argument('--rev',"-r", action="store_true")
+
+
+##添加子命令remove
+remove_parser=sub_parser.add_parser("remove", help="Remove the last character (i.e. *,.?...) of each line\nUsage: python seqtools.py remove -i test.pep -c '.' -o output.pep")
+###为子命令添加参数
+remove_parser.add_argument("--input","-i", type=str, help="Input file (.fasta, .pep or others)")
+remove_parser.add_argument("--character","-c", type=str, help="the character need to be removed")
+remove_parser.add_argument("--output","-o", help="Output file (.fasta, .pep or others)")
+
 ##指定不同的子命令执行的函数
 ### 子命令extract执行上面定义的函数extract
 extract_parser.set_defaults(func=extract)
 ### 子命令sort执行上面定义的函数sort
 sort_parser.set_defaults(func=sort)
+### 子命令remove执行上面定义的remove_char函数
+remove_parser.set_defaults(func=remove)
+
 ##解析参数
 args=parser.parse_args()
-
 args.func(args)
 
 if __name__=="__main__":
