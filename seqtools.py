@@ -34,14 +34,14 @@ def main():
     ###为命令extract添加参数
     extract_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     extract_parser.add_argument("--seq_id_list","-l", action="store", required=True, help="The sequence id you want to extract (.txt)")
-    extract_parser.add_argument("--output","-o", help="Output file (.fasta or others)")
+    extract_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others)")
 
     ##添加子命令sort
     sort_parser=sub_parser.add_parser("sort", help="Sort the sequence by sequence id or length \nUsage: python seqtools.py sort -i test.fasta -by 'id (or len)' -o output.fasta")
     ###为子命令sort添加参数
     sort_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     sort_parser.add_argument("--sort_by","-by", type=str, help="Sort sequence by sequence id (id) or sequence length (len)")
-    sort_parser.add_argument("--output","-o", help="Output file (.fasta or others)")
+    sort_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others)")
     ##是否需要反向排序，默认是不需要（按从小到大的顺序进行排序），如果需要的话，就需要指定参数-r（按从大到小的顺序进行排序）
     sort_parser.add_argument('--rev',"-r", action="store_true")
 
@@ -50,7 +50,7 @@ def main():
     ###为子命令添加参数
     remove_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     remove_parser.add_argument("--character","-c", type=str, help="the character need to be removed")
-    remove_parser.add_argument("--output","-o", help="Output file (.fasta, .pep or others)")
+    remove_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others)")
 
     ##指定不同的子命令执行的函数
     ### 子命令extract执行上面定义的函数extract
@@ -67,7 +67,10 @@ def main():
 
 # Define the function to extract sequence by sequence id, you need offer a list(txt) with one row one seq_id
 def extract(args):
-    outputfile=open(args.output, "w")
+    if args.output.endswith(".gz"):
+        outputfile=gzip.open(args.output, "wt")
+    else:
+        outputfile=open(args.output, "w")
     fasta={}
     if args.input.endswith(".gz"):
         opener = gzip.open
@@ -91,7 +94,10 @@ def extract(args):
 
 ## Define the function to sort the sequence by sequence id or sequence length
 def sort(args):
-    outputfile=open(args.output, "w")
+    if args.output.endswith(".gz"):
+        outputfile=gzip.open(args.output, "wt")
+    else:
+        outputfile=open(args.output, "w")
     fasta={}
     if args.input.endswith(".gz"):
         opener=gzip.open
@@ -117,7 +123,10 @@ def sort(args):
     
 ## define the function to remove the last character of each line  
 def remove(args):
-    outputfile=open(args.output,"w")
+    if args.output.endswith(".gz"):
+        outputfile=gzip.open(args.output, "wt")
+    else:
+        outputfile=open(args.output, "w")
     if args.input.endswith(".gz"):
         opener=gzip.open
     else:
