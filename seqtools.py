@@ -24,20 +24,20 @@ import gzip
 def main():
     #argparse设置参数
     ##创建解析器
-    parser=argparse.ArgumentParser(description="Some useful functions for dealing with genome data", formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser=argparse.ArgumentParser(description="Some useful functions for dealing with genome data", formatter_class=argparse.RawTextHelpFormatter)
 
     ##创建子命令
     sub_parser=parser.add_subparsers()
 
     ##添加子命令extract
-    extract_parser=sub_parser.add_parser("extract", help="Extract sequence based sequence id \nUsage: python seqtools.py extract -i input.fasta (or input.fasta.gz) -l seq_id.txt -o output.fasta (or output.fasta.gz)")
+    extract_parser=sub_parser.add_parser("extract", help="Extract sequence based sequence id\nUsage:\n python seqtools.py extract -i input.fasta (or input.fasta.gz) -l seq_id.txt -o output.fasta (or output.fasta.gz)")
     ###为命令extract添加参数
     extract_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     extract_parser.add_argument("--seq_id_list","-l", action="store", required=True, help="The sequence id you want to extract (.txt)")
     extract_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others), can be gzipped")
 
     ##添加子命令sort
-    sort_parser=sub_parser.add_parser("sort", help="Sort the sequence by sequence id or length \nUsage: python seqtools.py sort -i test.fasta (or test.fasta.gz) -by 'id (or len)' -o output.fasta (or output.fasta.gz)")
+    sort_parser=sub_parser.add_parser("sort", help="Sort the sequence by sequence id or length\nUsage:\n python seqtools.py sort -i test.fasta (or test.fasta.gz) -by 'id (or len)' -o output.fasta (or output.fasta.gz)")
     ###为子命令sort添加参数
     sort_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     sort_parser.add_argument("--sort_by","-by", type=str, help="Sort sequence by sequence id (id) or sequence length (len)")
@@ -46,14 +46,14 @@ def main():
     sort_parser.add_argument('--rev',"-r", action="store_true")
 
     ##添加子命令remove
-    remove_parser=sub_parser.add_parser("remove", help="Remove the last character (i.e. *,.?...) of each line\nUsage: python seqtools.py remove -i test.pep (or test.pep.gz) -c '.' -o output.pep (output.pep.gz)")
+    remove_parser=sub_parser.add_parser("remove", help="Remove the last character (i.e. *,.?...) of each line\nUsage:\n python seqtools.py remove -i test.pep (or test.pep.gz) -c '.' -o output.pep (or output.pep.gz)")
     ###为子命令添加参数
     remove_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     remove_parser.add_argument("--character","-c", type=str, help="the character need to be removed")
     remove_parser.add_argument("--output","-o", action="store", required=True, help="Name of the output file (.fasta or others), can be gzipped")
 
     ##添加子命令add_id2vcf
-    add_id2vcf_parser=sub_parser.add_parser("add_id2vcf", help="Add id to the vcf file,ID=chromosome+position\nUsage: python seqtools.py add_id2vcf -i test.vcf (or test.vcf.gz) -o output.vcf (or output.vcf.gz)")
+    add_id2vcf_parser=sub_parser.add_parser("add_id2vcf", help="Add id to the vcf file,ID=chromosome+position\nUsage:\n python seqtools.py add_id2vcf -i test.vcf (or test.vcf.gz) -o output.vcf (or output.vcf.gz)")
 
     ###为子命令add_id2vcf添加参数
     add_id2vcf_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.vcf), can be gzipped")
