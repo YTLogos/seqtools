@@ -30,35 +30,47 @@ def main():
     sub_parser=parser.add_subparsers()
 
     ##添加子命令extract
-    extract_parser=sub_parser.add_parser("extract", help="Extract sequence based sequence id \nUsage: python seqtools.py extract -i input.fasta -l seq_id.txt -o output.fasta")
+    extract_parser=sub_parser.add_parser("extract", help="Extract sequence based sequence id \nUsage: python seqtools.py extract -i input.fasta (or input.fasta.gz) -l seq_id.txt -o output.fasta (or output.fasta.gz)")
     ###为命令extract添加参数
     extract_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     extract_parser.add_argument("--seq_id_list","-l", action="store", required=True, help="The sequence id you want to extract (.txt)")
-    extract_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others)")
+    extract_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others), can be gzipped")
 
     ##添加子命令sort
-    sort_parser=sub_parser.add_parser("sort", help="Sort the sequence by sequence id or length \nUsage: python seqtools.py sort -i test.fasta -by 'id (or len)' -o output.fasta")
+    sort_parser=sub_parser.add_parser("sort", help="Sort the sequence by sequence id or length \nUsage: python seqtools.py sort -i test.fasta (or test.fasta.gz) -by 'id (or len)' -o output.fasta (or output.fasta.gz)")
     ###为子命令sort添加参数
     sort_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     sort_parser.add_argument("--sort_by","-by", type=str, help="Sort sequence by sequence id (id) or sequence length (len)")
-    sort_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others)")
+    sort_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others), can be gzipped")
     ##是否需要反向排序，默认是不需要（按从小到大的顺序进行排序），如果需要的话，就需要指定参数-r（按从大到小的顺序进行排序）
     sort_parser.add_argument('--rev',"-r", action="store_true")
 
     ##添加子命令remove
-    remove_parser=sub_parser.add_parser("remove", help="Remove the last character (i.e. *,.?...) of each line\nUsage: python seqtools.py remove -i test.pep -c '.' -o output.pep")
+    remove_parser=sub_parser.add_parser("remove", help="Remove the last character (i.e. *,.?...) of each line\nUsage: python seqtools.py remove -i test.pep (or test.pep.gz) -c '.' -o output.pep (output.pep.gz)")
     ###为子命令添加参数
     remove_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.fasta or others), can be gzipped")
     remove_parser.add_argument("--character","-c", type=str, help="the character need to be removed")
-    remove_parser.add_argument("--output","-o", action="store", required=True, help="name of the output file (.fasta or others)")
+    remove_parser.add_argument("--output","-o", action="store", required=True, help="Name of the output file (.fasta or others), can be gzipped")
+
+    ##添加子命令add_id2vcf
+    add_id2vcf_parser=sub_parser.add_parser("add_id2vcf", help="Add id to the vcf file,ID=chromosome+position\nUsage: python seqtools.py add_id2vcf -i test.vcf (or test.vcf.gz) -o output.vcf (or output.vcf.gz)")
+
+    ###为子命令add_id2vcf添加参数
+    add_id2vcf_parser.add_argument("--input","-i", action="store", required=True, help="Name of the input file (.vcf), can be gzipped")
+    add_id2vcf_parser.add_argument("--output","-o", action="store", required=True, help="Name of the output file (.vcf), can be gzipped")
+
+
+
 
     ##指定不同的子命令执行的函数
-    ### 子命令extract执行上面定义的函数extract
+    ### 子命令extract执行定义的函数extract
     extract_parser.set_defaults(func=extract)
-    ### 子命令sort执行上面定义的函数sort
+    ### 子命令sort执行定义的函数sort
     sort_parser.set_defaults(func=sort)
-    ### 子命令remove执行上面定义的remove_char函数
+    ### 子命令remove执行定义的remove函数
     remove_parser.set_defaults(func=remove)
+    ### 子命令add_id2vcf执行定义的add_id2vcf函数
+    add_id2vcf_parser.set_defaults(func=add_id2vcf)
 
     ##解析参数
     args=parser.parse_args()
@@ -139,6 +151,27 @@ def remove(args):
             else:
                 line=line[:-1]
                 outputfile.write(line+'\n')
+    outputfile.close()
+
+## define the function to add SNP id to vcf file
+def add_id2vcf(args):
+    if args.output.endswith(".gz"):
+        outputfile=gzip.open(args.output, "wt")
+    else:
+        outputfile=open(args.output, "w")
+    if args.input.endswith(".gz"):
+        opener=gzip.open
+    else:
+        opener=open
+    with opener(args.input,"rt") as vcffile:
+        for line in vcffile:
+            if line.startswith("#"):
+                outputfile.write(line)
+            else:
+                l=line.strip("\n").split()
+                l[2]=l[0]+"_"+l[1]
+                f='	'.join(l)
+                outputfile.write(f+"\n")
     outputfile.close()
 
 if __name__=="__main__":
